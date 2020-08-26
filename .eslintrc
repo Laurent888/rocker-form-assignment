@@ -1,0 +1,36 @@
+{
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint", "react-hooks"],
+    "extends": [
+        "airbnb-typescript",
+        "plugin:@typescript-eslint/recommended",
+        "prettier/@typescript-eslint",
+        "plugin:prettier/recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "ignorePatterns": ["**/node_modules/**/*"],
+    "rules": {
+        "@typescript-eslint/rule-name": "error",
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn"
+    },
+    "globals": {
+        "__DEV__": "readonly"
+    }
+}
