@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { Picker as NativePicker } from '@react-native-community/picker';
 
 interface CountryProps {
@@ -9,23 +9,23 @@ interface CountryProps {
 
 interface PickerProps {
     data: CountryProps[];
+    onValueChange: (itemValue: string | number, itemIndex: number) => void;
 }
 
 const s = StyleSheet.create({
     container: {
-        backgroundColor: '#ccc',
         borderWidth: 1,
-        borderColor: 'red',
+        marginTop: 20,
     },
     picker: {
         paddingVertical: 5,
         paddingHorizontal: 5,
         height: 50,
-        width: 200,
+        width: '100%',
     },
 });
 
-const Picker = ({ data }: PickerProps) => {
+const Picker = ({ data, onValueChange }: PickerProps) => {
     const renderData = data.map((item) => (
         <NativePicker.Item
             key={item.value}
@@ -36,7 +36,9 @@ const Picker = ({ data }: PickerProps) => {
 
     return (
         <View style={s.container}>
-            <NativePicker style={s.picker}>{renderData}</NativePicker>;
+            <NativePicker onValueChange={onValueChange} style={s.picker}>
+                {renderData}
+            </NativePicker>
         </View>
     );
 };

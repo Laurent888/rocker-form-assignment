@@ -1,18 +1,25 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { ChangeEvent } from 'react';
+import { StyleSheet, View, TextInputProps } from 'react-native';
 import { TextInput as InputPaper } from 'react-native-paper';
-import { TextInputProps } from 'react-native-paper/lib/typescript/src/components/TextInput/TextInput';
 
-interface InputProps extends TextInputProps {}
+interface InputProps extends TextInputProps {
+    label: string;
+    value: string;
+    onChangeText: (e: string | ChangeEvent<any>) => void;
+}
+
+const s = StyleSheet.create({
+    container: {
+        marginTop: 10,
+    },
+});
 
 const TextInput = ({ ...props }: InputProps) => {
     return (
-        <View>
+        <View style={s.container}>
             <InputPaper mode="outlined" {...props} />
         </View>
     );
 };
 
 export default TextInput;
-
-const styles = StyleSheet.create({});
