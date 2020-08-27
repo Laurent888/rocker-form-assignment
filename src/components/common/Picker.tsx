@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { Picker as NativePicker } from '@react-native-community/picker';
 
@@ -10,6 +10,7 @@ interface CountryProps {
 interface PickerProps {
     data: CountryProps[];
     onValueChange: (itemValue: string | number, itemIndex: number) => void;
+    selectedValue: string;
 }
 
 const s = StyleSheet.create({
@@ -25,7 +26,11 @@ const s = StyleSheet.create({
     },
 });
 
-const Picker = ({ data, onValueChange }: PickerProps) => {
+const Picker = ({
+    data,
+    onValueChange,
+    selectedValue = 'Country',
+}: PickerProps) => {
     const renderData = data.map((item) => (
         <NativePicker.Item
             key={item.value}
@@ -36,7 +41,15 @@ const Picker = ({ data, onValueChange }: PickerProps) => {
 
     return (
         <View style={s.container}>
-            <NativePicker onValueChange={onValueChange} style={s.picker}>
+            <NativePicker
+                onValueChange={onValueChange}
+                selectedValue={selectedValue}
+                style={s.picker}
+            >
+                <NativePicker.Item
+                    label="Please select an option..."
+                    value=""
+                />
                 {renderData}
             </NativePicker>
         </View>

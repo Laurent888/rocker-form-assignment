@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    ViewStyle,
+    ActionSheetIOS,
+} from 'react-native';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -9,14 +15,20 @@ import TextInput from './common/TextInput';
 import Picker from './common/Picker';
 import ListMessages from './common/ListMessages';
 import { theme } from '../lib/theme';
+import { validateSSN } from '../lib/utils/checkSSN';
+import { validatePhoneNumber } from '../lib/utils/checkPhone';
+
+interface CustomFormProps {
+    containerStyle?: ViewStyle;
+}
 
 const styles = StyleSheet.create({
     container: {
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingVertical: 20,
         borderWidth: 1,
         borderColor: '#ccc',
-        height: 500,
+        borderRadius: 5,
         width: '80%',
         backgroundColor: '#fff',
     },
@@ -48,24 +60,54 @@ const mockData = [
     },
 ];
 
+// YUP validation schema
 const validationSchema = Yup.object({
     ssn: Yup.number()
-        .min(12, 'Your SSN must at least 12 digits')
-        .max(12)
+        .test(
+            'length',
+            'Your SSN must at least 12 digits',
+            (val: number | null | undefined) => val?.toString().length === 12,
+        )
         .required(),
-    phoneNumber: Yup.number().required(),
-    email: Yup.string().email('Invalid email format').required(),
-    country: Yup.string().required(),
+    phoneNumber: Yup.number()
+        .typeError('Phone must be a number')
+        .required('Phone number is empty'),
+    email: Yup.string()
+        .email('Invalid email format')
+        .required('Email is empty'),
+    country: Yup.string().required('Country field is empty'),
 });
 
-const CustomForm = () => {
-    const [errorMessages, setErrorMessages] = useState<string[]>([]);
+// Form component
+const CustomForm = ({ containerStyle }: CustomFormProps) => {
     return (
         <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={(values, actions) => {
-                console.log(values);
+                console.log('Values', values);
+
+                // Validate the SSN
+                const isValidSSN = validateSSN(values.ssn);
+                if (!isValidSSN) {
+                    actions.setFieldError(
+                        'ssn',
+                        "This SSN doesn't seem valid, please try again",
+                    );
+                }
+
+                // Validate Phone Number
+                const isValidPhoneNumber = validatePhoneNumber(
+                    values.phoneNumber,
+                );
+                if (!isValidPhoneNumber) {
+                    actions.setFieldError(
+                        'phoneNumber',
+                        'Invalid phone number',
+                    );
+                }
+
+                return actions.setSubmitting(false);
             }}
         >
             {({
@@ -76,8 +118,9 @@ const CustomForm = () => {
                 touched,
                 values,
             }) => {
-                console.log(errors);
+                console.log('Errors', errors);
 
+                // Format the errors list into an array of strings
                 const listErrors = Object.values(errors) as string[];
 
                 return (
@@ -89,7 +132,7 @@ const CustomForm = () => {
                             justifyContent: 'center',
                         }}
                     >
-                        <View style={styles.container}>
+                        <View style={[styles.container, containerStyle]}>
                             <Text style={styles.title}>Rocker Form</Text>
 
                             {/* Text Input for SSN, phone and Email */}
@@ -118,15 +161,17 @@ const CustomForm = () => {
                                 onValueChange={(value) =>
                                     setFieldValue('country', value)
                                 }
+                                selectedValue={values.country}
                             />
 
-                            {/* {listErrors.length !== 0 && (
+                            {listErrors.length !== 0 && (
                                 <ListMessages
                                     list={listErrors}
                                     color={theme.colors.errorSecondary}
                                 />
-                            )} */}
+                            )}
 
+                            {/* Submit Button */}
                             <Button
                                 mode="contained"
                                 onPress={handleSubmit}
