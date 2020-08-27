@@ -1,96 +1,87 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import React from 'react';
+import { Text, View, ViewStyle } from 'react-native';
+import { Formik, FormikHelpers } from 'formik';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import Picker, { CountryProps } from '../common/Picker';
 import ListMessages from '../common/ListMessages';
+
 import { theme } from '../../lib/theme';
+import { styles } from './styles';
 import {
     validateSSN,
     validatePhoneNumber,
-} from '../../lib/utils/validationUtils';
+    validationSchema,
+} from './validationUtils';
+import { setDataToStorage } from '../../lib/utils/storage';
 
 interface CustomFormProps {
     containerStyle?: ViewStyle;
     pickerData: CountryProps[];
+    initialValuesStorage?: ValuesProps | null;
 }
 
-const styles = StyleSheet.create({
-    container: {
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        width: '80%',
-        backgroundColor: '#fff',
-    },
-    title: {
-        fontSize: 25,
-        paddingVertical: 5,
-    },
-});
+export interface ValuesProps {
+    ssn: string;
+    phoneNumber: string;
+    email: string;
+    country: string;
+}
 
-const initialValues = {
+const initialValues: ValuesProps = {
     ssn: '',
     phoneNumber: '',
     email: '',
     country: '',
 };
 
-// YUP validation schema
-const validationSchema = Yup.object({
-    ssn: Yup.number()
-        .test(
-            'length',
-            'Your SSN must at least 12 digits',
-            (val: number | null | undefined) => val?.toString().length === 12,
-        )
-        .required(),
-    phoneNumber: Yup.number()
-        .typeError('Phone must be a number')
-        .required('Phone number is empty'),
-    email: Yup.string()
-        .email('Invalid email format')
-        .required('Email is empty'),
-    country: Yup.string().required('Country field is empty'),
-});
+/******  Form Component ********/
 
-// Form component
-const CustomForm = ({ containerStyle, pickerData }: CustomFormProps) => {
+const CustomForm = ({
+    containerStyle,
+    pickerData,
+    initialValuesStorage,
+}: CustomFormProps) => {
+    // HANDLE SUBMIT
+    const handleSubmit = (
+        values: ValuesProps,
+        actions: FormikHelpers<ValuesProps>,
+    ) => {
+        console.log('Values', values);
+
+        // Set form values to storage
+        setDataToStorage(values);
+
+        // Validate the SSN
+        const isValidSSN = validateSSN(values.ssn);
+        if (!isValidSSN) {
+            actions.setFieldError(
+                'ssn',
+                "This SSN doesn't seem valid, please try again",
+            );
+        }
+
+        // Validate Phone Number
+        const isValidPhoneNumber = validatePhoneNumber(values.phoneNumber);
+        if (!isValidPhoneNumber) {
+            actions.setFieldError('phoneNumber', 'Invalid phone number');
+        }
+
+        // Success
+        console.log('FORM SUCCESSFULLY SUBMITTED !!');
+        return actions.setSubmitting(false);
+    };
+
     return (
         <Formik
-            initialValues={initialValues}
+            // Use data from storage as initial values if app was interrupted before successuful submission
+            initialValues={
+                initialValuesStorage ? initialValuesStorage : initialValues
+            }
             validationSchema={validationSchema}
-            onSubmit={(values, actions) => {
-                console.log('Values', values);
-
-                // Validate the SSN
-                const isValidSSN = validateSSN(values.ssn);
-                if (!isValidSSN) {
-                    actions.setFieldError(
-                        'ssn',
-                        "This SSN doesn't seem valid, please try again",
-                    );
-                }
-
-                // Validate Phone Number
-                const isValidPhoneNumber = validatePhoneNumber(
-                    values.phoneNumber,
-                );
-                if (!isValidPhoneNumber) {
-                    actions.setFieldError(
-                        'phoneNumber',
-                        'Invalid phone number',
-                    );
-                }
-
-                return actions.setSubmitting(false);
-            }}
+            onSubmit={handleSubmit}
         >
             {({
                 handleChange,

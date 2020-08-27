@@ -1,7 +1,18 @@
 import dayjs from 'dayjs';
 var customParseFormat = require('dayjs/plugin/customParseFormat');
+import { validator } from 'telefonnummer';
+import * as Yup from 'yup';
 
 dayjs.extend(customParseFormat);
+
+/******  Phone Validation  ********/
+
+export const validatePhoneNumber = (number: string) => {
+    const isValid = validator(number);
+    return isValid;
+};
+
+/******  SSN Validation  ********/
 
 const addNumbers = (number: number) => {
     const newNumber = number.toString().split('');
@@ -61,3 +72,22 @@ export const validateSSN = (ssn: string) => {
 
     return (isValid = true);
 };
+
+/******  YUP validation schema  ********/
+
+export const validationSchema = Yup.object({
+    ssn: Yup.number()
+        .test(
+            'length',
+            'Your SSN must at least 12 digits',
+            (val: number | null | undefined) => val?.toString().length === 12,
+        )
+        .required(),
+    phoneNumber: Yup.number()
+        .typeError('Phone must be a number')
+        .required('Phone number is empty'),
+    email: Yup.string()
+        .email('Invalid email format')
+        .required('Email is empty'),
+    country: Yup.string().required('Country field is empty'),
+});

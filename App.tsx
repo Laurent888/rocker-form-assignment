@@ -7,7 +7,6 @@ import HomeScreen from './src/screens/HomeScreen';
 import { store } from './src/lib/redux/store';
 
 import { theme } from './src/lib/theme';
-import Form from './src/components/Form';
 
 export default function App() {
     return (
