@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    ViewStyle,
-    ActionSheetIOS,
-} from 'react-native';
-import { Formik, Form } from 'formik';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import Button from './common/Button';
-import TextInput from './common/TextInput';
-import Picker from './common/Picker';
-import ListMessages from './common/ListMessages';
-import { theme } from '../lib/theme';
-import { validateSSN } from '../lib/utils/checkSSN';
-import { validatePhoneNumber } from '../lib/utils/checkPhone';
+import Button from '../common/Button';
+import TextInput from '../common/TextInput';
+import Picker, { CountryProps } from '../common/Picker';
+import ListMessages from '../common/ListMessages';
+import { theme } from '../../lib/theme';
+import {
+    validateSSN,
+    validatePhoneNumber,
+} from '../../lib/utils/validationUtils';
 
 interface CustomFormProps {
     containerStyle?: ViewStyle;
+    pickerData: CountryProps[];
 }
 
 const styles = StyleSheet.create({
@@ -45,21 +42,6 @@ const initialValues = {
     country: '',
 };
 
-const mockData = [
-    {
-        label: 'France',
-        value: 'france',
-    },
-    {
-        label: 'Germany',
-        value: 'germany',
-    },
-    {
-        label: 'Spain',
-        value: 'spain',
-    },
-];
-
 // YUP validation schema
 const validationSchema = Yup.object({
     ssn: Yup.number()
@@ -79,7 +61,7 @@ const validationSchema = Yup.object({
 });
 
 // Form component
-const CustomForm = ({ containerStyle }: CustomFormProps) => {
+const CustomForm = ({ containerStyle, pickerData }: CustomFormProps) => {
     return (
         <Formik
             initialValues={initialValues}
@@ -157,7 +139,7 @@ const CustomForm = ({ containerStyle }: CustomFormProps) => {
 
                             {/* Picker select countries */}
                             <Picker
-                                data={mockData}
+                                data={pickerData}
                                 onValueChange={(value) =>
                                     setFieldValue('country', value)
                                 }

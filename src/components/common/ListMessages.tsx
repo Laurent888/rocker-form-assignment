@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ViewStyle, StyleProp } from 'react-native';
-import { theme } from '../../lib/theme';
+import { StyleSheet, Text, View } from 'react-native';
 
 interface ListProps {
     list: string[];

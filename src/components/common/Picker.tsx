@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Picker as NativePicker } from '@react-native-community/picker';
 
-interface CountryProps {
+export interface CountryProps {
     label: string;
     value: string;
 }
