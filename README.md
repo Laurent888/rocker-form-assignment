@@ -17,10 +17,10 @@
 
 ## Some highlights
 
-**Social Social Number**: Although there was a package available on npm to verify swedish SSN, I wanted to try doing it in plain javascript with the help of Day.js package.
-**Phone number**: The phone number validation is handled by the package Telefonnummer
-**Email**: Email is validate by Yup.
-**Countries**: Countries are fetched and stored on App start by Axios, Redux and Redux Saga
+-   **Social Social Number**: Although there was a package available on npm to verify swedish SSN, I wanted to try doing it in plain javascript with the help of Day.js package.
+-   **Phone number**: The phone number validation is handled by the package Telefonnummer
+-   **Email**: Email is validate by Yup.
+-   **Countries**: Countries are fetched and stored on App start by Axios, Redux and Redux Saga
 
 ## Installation
 
