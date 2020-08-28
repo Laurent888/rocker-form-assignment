@@ -15,12 +15,14 @@ import {
     validatePhoneNumber,
     validationSchema,
 } from './validationUtils';
-import { setDataToStorage } from '../../lib/utils/storage';
+import { setDataToStorage, resetStorage } from '../../lib/utils/storage';
+import { Divider } from 'react-native-paper';
 
 interface CustomFormProps {
     containerStyle?: ViewStyle;
     pickerData: CountryProps[];
     initialValuesStorage?: ValuesProps | null;
+    onReset: () => void;
 }
 
 export interface ValuesProps {
@@ -37,22 +39,22 @@ const initialValues: ValuesProps = {
     country: '',
 };
 
+const STORAGE_KEY = 'rockerform';
+
 /******  Form Component ********/
 
 const CustomForm = ({
     containerStyle,
     pickerData,
     initialValuesStorage,
+    onReset,
 }: CustomFormProps) => {
     // HANDLE SUBMIT
-    const handleSubmit = (
+    const handleSubmit = async (
         values: ValuesProps,
         actions: FormikHelpers<ValuesProps>,
     ) => {
         console.log('Values', values);
-
-        // Set form values to storage
-        setDataToStorage(values);
 
         // Validate the SSN
         const isValidSSN = validateSSN(values.ssn);
@@ -70,7 +72,15 @@ const CustomForm = ({
         }
 
         // Success
-        console.log('FORM SUCCESSFULLY SUBMITTED !!');
+        if (isValidSSN && isValidPhoneNumber) {
+            onReset();
+            await resetStorage(STORAGE_KEY);
+            actions.setSubmitting(false);
+            actions.resetForm();
+
+            console.log('FORM SUCCESSFULLY SUBMITTED !!');
+        }
+
         return actions.setSubmitting(false);
     };
 
@@ -88,10 +98,12 @@ const CustomForm = ({
                 handleSubmit,
                 setFieldValue,
                 errors,
-                touched,
                 values,
+                isSubmitting,
             }) => {
-                console.log('Errors', errors);
+                // Set form values to storage
+                setDataToStorage(STORAGE_KEY, values);
+                console.log('initialValues Storage', initialValuesStorage);
 
                 // Format the errors list into an array of strings
                 const listErrors = Object.values(errors) as string[];
@@ -115,18 +127,23 @@ const CustomForm = ({
                                 maxLength={12}
                                 keyboardType="number-pad"
                                 onChangeText={handleChange('ssn')}
+                                placeholder="yyyymmddxxxx"
                             />
                             <TextInput
                                 label="Phone number"
                                 value={values.phoneNumber}
                                 onChangeText={handleChange('phoneNumber')}
                                 keyboardType="phone-pad"
+                                placeholder="eg 076528452"
                             />
                             <TextInput
                                 label="Email address"
                                 value={values.email}
                                 onChangeText={handleChange('email')}
                             />
+
+                            {/* Divider */}
+                            <View style={{ paddingVertical: 6 }} />
 
                             {/* Picker select countries */}
                             <Picker
@@ -135,6 +152,7 @@ const CustomForm = ({
                                     setFieldValue('country', value)
                                 }
                                 selectedValue={values.country}
+                                label="Your nationality"
                             />
 
                             {listErrors.length !== 0 && (
@@ -149,6 +167,7 @@ const CustomForm = ({
                                 mode="contained"
                                 onPress={handleSubmit}
                                 style={{ marginTop: 20 }}
+                                disabled={isSubmitting}
                             >
                                 Send
                             </Button>

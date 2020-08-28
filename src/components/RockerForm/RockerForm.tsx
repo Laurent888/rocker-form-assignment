@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, StatusBar } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import Form, { ValuesProps } from '../components/Form';
-import { CountryProps } from '../components/common/Picker';
-import { fetchCountriesAction } from '../lib/redux/actions';
-import { getDataFromStorage } from '../lib/utils/storage';
+import Form, { ValuesProps } from './Form';
+import { CountryProps } from '../common/Picker';
+import { fetchCountriesAction } from '../../lib/redux/actions';
+import { getDataFromStorage } from '../../lib/utils/storage';
 
 interface RootState {
     listCountries: CountryProps[];
 }
 
-const HomeScreen = () => {
+const RockerForm = () => {
     const [formData, setFormData] = useState<ValuesProps | null>(null);
+    const [loading, setLoading] = useState(true);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -21,8 +22,11 @@ const HomeScreen = () => {
 
         // Check is data in storage
         (async function () {
-            const formData = await getDataFromStorage();
-            if (formData) setFormData(formData);
+            const formData = await getDataFromStorage('rockerform');
+            if (formData) {
+                setFormData(formData);
+            }
+            setLoading(false);
         })();
     }, []);
 
@@ -34,14 +38,19 @@ const HomeScreen = () => {
             style={styles.container}
             contentContainerStyle={{ marginTop: 50 }}
         >
-            <StatusBar barStyle="default" />
-
-            <Form pickerData={listCountries} initialValuesStorage={formData} />
+            {/* Render only if data fetched from storage */}
+            {!loading && (
+                <Form
+                    pickerData={listCountries}
+                    initialValuesStorage={formData}
+                    onReset={() => setFormData(null)}
+                />
+            )}
         </ScrollView>
     );
 };
 
-export default HomeScreen;
+export default RockerForm;
 
 const styles = StyleSheet.create({
     container: {
