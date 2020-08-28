@@ -7,14 +7,10 @@ const urlAPI = 'https://restcountries.eu/rest/v2/all';
 
 // Fetch countries flow
 function* fetchAllCountries() {
-    console.log('Fetch all countries START');
-
     yield takeEvery(types.FETCH_COUNTRIES_START, fetchAllCountriesAsync);
 }
 
 function* fetchAllCountriesAsync() {
-    console.log('Fetch all countries ASYNC');
-
     const countriesArray = yield call(fetchData);
 
     if (!countriesArray) {
@@ -40,7 +36,6 @@ const fetchData = async () => {
         }));
         return cleanData;
     } catch (error) {
-        console.log('Fetch Data error', error);
         return null;
     }
 };

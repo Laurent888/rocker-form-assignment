@@ -46,6 +46,7 @@ const Picker = ({
             key={item.value}
             label={item.label}
             value={item.value}
+            color="#222"
         />
     ));
 
@@ -61,6 +62,7 @@ const Picker = ({
                     <NativePicker.Item
                         label="Please select an option..."
                         value=""
+                        color="#777"
                     />
                     {renderData}
                 </NativePicker>

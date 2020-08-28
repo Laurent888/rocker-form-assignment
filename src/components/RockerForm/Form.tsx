@@ -1,12 +1,13 @@
 import React from 'react';
-import { Text, View, ViewStyle } from 'react-native';
-import { Formik, FormikHelpers } from 'formik';
+import { View, ViewStyle, StyleProp } from 'react-native';
+import { Formik, FormikHelpers, Field } from 'formik';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import Picker, { CountryProps } from '../common/Picker';
 import ListMessages from '../common/ListMessages';
+import { ValuesProps } from './RockerForm';
 
 import { theme } from '../../lib/theme';
 import { styles } from './styles';
@@ -16,28 +17,13 @@ import {
     validationSchema,
 } from './validationUtils';
 import { setDataToStorage, resetStorage } from '../../lib/utils/storage';
-import { Divider } from 'react-native-paper';
 
 interface CustomFormProps {
-    containerStyle?: ViewStyle;
+    containerStyle?: StyleProp<ViewStyle>;
     pickerData: CountryProps[];
-    initialValuesStorage?: ValuesProps | null;
-    onReset: () => void;
+    initialValues: ValuesProps;
+    onSuccess: () => void;
 }
-
-export interface ValuesProps {
-    ssn: string;
-    phoneNumber: string;
-    email: string;
-    country: string;
-}
-
-const initialValues: ValuesProps = {
-    ssn: '',
-    phoneNumber: '',
-    email: '',
-    country: '',
-};
 
 const STORAGE_KEY = 'rockerform';
 
@@ -46,17 +32,17 @@ const STORAGE_KEY = 'rockerform';
 const CustomForm = ({
     containerStyle,
     pickerData,
-    initialValuesStorage,
-    onReset,
+    initialValues,
+    onSuccess,
 }: CustomFormProps) => {
     // HANDLE SUBMIT
+
     const handleSubmit = async (
         values: ValuesProps,
         actions: FormikHelpers<ValuesProps>,
     ) => {
-        console.log('Values', values);
-
         // Validate the SSN
+
         const isValidSSN = validateSSN(values.ssn);
         if (!isValidSSN) {
             actions.setFieldError(
@@ -66,14 +52,16 @@ const CustomForm = ({
         }
 
         // Validate Phone Number
+
         const isValidPhoneNumber = validatePhoneNumber(values.phoneNumber);
         if (!isValidPhoneNumber) {
             actions.setFieldError('phoneNumber', 'Invalid phone number');
         }
 
         // Success
+
         if (isValidSSN && isValidPhoneNumber) {
-            onReset();
+            onSuccess();
             await resetStorage(STORAGE_KEY);
             actions.setSubmitting(false);
             actions.resetForm();
@@ -87,9 +75,7 @@ const CustomForm = ({
     return (
         <Formik
             // Use data from storage as initial values if app was interrupted before successuful submission
-            initialValues={
-                initialValuesStorage ? initialValuesStorage : initialValues
-            }
+            initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
         >
@@ -100,10 +86,11 @@ const CustomForm = ({
                 errors,
                 values,
                 isSubmitting,
+                touched,
+                setFieldTouched,
             }) => {
                 // Set form values to storage
                 setDataToStorage(STORAGE_KEY, values);
-                console.log('initialValues Storage', initialValuesStorage);
 
                 // Format the errors list into an array of strings
                 const listErrors = Object.values(errors) as string[];
@@ -118,8 +105,6 @@ const CustomForm = ({
                         }}
                     >
                         <View style={[styles.container, containerStyle]}>
-                            <Text style={styles.title}>Rocker Form</Text>
-
                             {/* Text Input for SSN, phone and Email */}
                             <TextInput
                                 label="Social security number"
@@ -128,6 +113,7 @@ const CustomForm = ({
                                 keyboardType="number-pad"
                                 onChangeText={handleChange('ssn')}
                                 placeholder="yyyymmddxxxx"
+                                onBlur={() => setFieldTouched('ssn', true)}
                             />
                             <TextInput
                                 label="Phone number"
@@ -135,11 +121,15 @@ const CustomForm = ({
                                 onChangeText={handleChange('phoneNumber')}
                                 keyboardType="phone-pad"
                                 placeholder="eg 076528452"
+                                onBlur={() =>
+                                    setFieldTouched('phoneNumber', true)
+                                }
                             />
                             <TextInput
                                 label="Email address"
                                 value={values.email}
                                 onChangeText={handleChange('email')}
+                                onBlur={() => setFieldTouched('email', true)}
                             />
 
                             {/* Divider */}
@@ -155,12 +145,13 @@ const CustomForm = ({
                                 label="Your nationality"
                             />
 
-                            {listErrors.length !== 0 && (
-                                <ListMessages
-                                    list={listErrors}
-                                    color={theme.colors.errorSecondary}
-                                />
-                            )}
+                            {listErrors.length !== 0 &&
+                                Object.keys(touched).length >= 3 && (
+                                    <ListMessages
+                                        list={listErrors}
+                                        color={theme.colors.errorSecondary}
+                                    />
+                                )}
 
                             {/* Submit Button */}
                             <Button

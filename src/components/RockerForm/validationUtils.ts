@@ -79,7 +79,7 @@ export const validationSchema = Yup.object({
     ssn: Yup.number()
         .test(
             'length',
-            'Your SSN must at least 12 digits',
+            'Your SSN must be at least 12 digits',
             (val: number | null | undefined) => val?.toString().length === 12,
         )
         .required(),

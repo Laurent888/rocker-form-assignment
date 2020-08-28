@@ -1,30 +1,65 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { ScrollView, Image, Text } from 'react-native';
+import { Snackbar } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 
-import Form, { ValuesProps } from './Form';
-import { CountryProps } from '../common/Picker';
 import { fetchCountriesAction } from '../../lib/redux/actions';
 import { getDataFromStorage } from '../../lib/utils/storage';
+
+import { styles } from './styles';
+import Form from './Form';
+import { CountryProps } from '../common/Picker';
+
+const logo = require('../../../assets/logo.png');
 
 interface RootState {
     listCountries: CountryProps[];
 }
 
+export interface ValuesProps {
+    ssn: string;
+    phoneNumber: string;
+    email: string;
+    country: string;
+}
+
+interface SnackbarProps {
+    visible: boolean;
+    message: string;
+}
+
+const initialSnackbar: SnackbarProps = {
+    visible: false,
+    message: '',
+};
+
+const initialValues: ValuesProps = {
+    ssn: '',
+    phoneNumber: '',
+    email: '',
+    country: '',
+};
+
 const RockerForm = () => {
     const [formData, setFormData] = useState<ValuesProps | null>(null);
     const [loading, setLoading] = useState(true);
+    const [snackbar, setSnackbar] = useState(initialSnackbar);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
         // When app is loaded, fetch the countries
+
         dispatch(fetchCountriesAction);
 
         // Check is data in storage
+
         (async function () {
-            const formData = await getDataFromStorage('rockerform');
-            if (formData) {
-                setFormData(formData);
+            const formStorage = await getDataFromStorage('rockerform');
+            if (formStorage) {
+                setFormData(formStorage);
+            } else {
+                setFormData(initialValues);
             }
             setLoading(false);
         })();
@@ -33,28 +68,37 @@ const RockerForm = () => {
     // Get the list of countries from the store
     const { listCountries } = useSelector((state: RootState) => state);
 
+    const handleSuccess = () => {
+        setFormData(initialValues);
+        setSnackbar({ visible: true, message: 'Form submitted !' });
+    };
+
     return (
-        <ScrollView
-            style={styles.container}
-            contentContainerStyle={{ marginTop: 50 }}
-        >
+        <ScrollView style={styles.mainContainer}>
+            {/* LOGO */}
+            <Image source={logo} resizeMode="contain" style={styles.logo} />
+
             {/* Render only if data fetched from storage */}
-            {!loading && (
+            {!loading && formData && (
                 <Form
                     pickerData={listCountries}
-                    initialValuesStorage={formData}
-                    onReset={() => setFormData(null)}
+                    initialValues={formData}
+                    onSuccess={handleSuccess}
                 />
             )}
+
+            {/* Snackbar to inform on successful form submission */}
+            <Snackbar
+                visible={snackbar.visible}
+                onDismiss={() => setSnackbar(initialSnackbar)}
+                duration={4000}
+                style={styles.snackbarContent}
+                wrapperStyle={styles.snackbarWrapper}
+            >
+                <Text style={{ fontWeight: '700' }}>{snackbar.message}</Text>
+            </Snackbar>
         </ScrollView>
     );
 };
 
 export default RockerForm;
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f7f7f7',
-    },
-});

@@ -16,7 +16,6 @@ const s = StyleSheet.create({
 });
 
 const ListMessages = ({ list, color = '#333' }: ListProps) => {
-    console.log('Color', color);
     return (
         <View style={[s.container, { borderColor: color }]}>
             {list.map((message) => (

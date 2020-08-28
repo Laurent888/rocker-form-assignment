@@ -1,6 +1,10 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
+    mainContainer: {
+        flex: 1,
+        position: 'relative',
+    },
     container: {
         paddingHorizontal: 20,
         paddingVertical: 20,
@@ -10,8 +14,19 @@ export const styles = StyleSheet.create({
         width: '80%',
         backgroundColor: '#fff',
     },
-    title: {
-        fontSize: 25,
-        paddingVertical: 5,
+    logo: {
+        width: 200,
+        height: 100,
+
+        alignSelf: 'center',
+    },
+
+    // Snackbar
+    snackbarContent: {
+        backgroundColor: '#09a31f',
+    },
+    snackbarWrapper: {
+        position: 'absolute',
+        top: 0,
     },
 });

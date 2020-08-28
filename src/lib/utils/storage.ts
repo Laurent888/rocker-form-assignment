@@ -5,14 +5,14 @@ export const setDataToStorage = async (key: string, value: any) => {
     try {
         await AsyncStorage.setItem(key, serializedData);
     } catch (error) {
-        console.log(error);
+        await resetStorage(key);
     }
 };
 
 export const getDataFromStorage = async (key: string) => {
     try {
         const res = await AsyncStorage.getItem(key);
-        console.log('From Storage', res);
+
         if (!res) return null;
 
         const parsedData = JSON.parse(res);
@@ -20,12 +20,9 @@ export const getDataFromStorage = async (key: string) => {
         return parsedData;
     } catch (error) {
         await resetStorage(key);
-        console.log(error);
     }
 };
 
 export const resetStorage = async (key: string) => {
-    console.log('In reset storage');
-
     await AsyncStorage.removeItem(key);
 };
