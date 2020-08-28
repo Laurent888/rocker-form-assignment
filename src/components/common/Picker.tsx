@@ -1,6 +1,8 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { StyleSheet, View, Text } from 'react-native';
-import { Picker as NativePicker } from '@react-native-community/picker';
+import NativePicker from 'react-native-picker-select';
+import { theme } from '../../lib/theme';
 
 export interface CountryProps {
     label: string;
@@ -23,9 +25,18 @@ const s = StyleSheet.create({
     },
     picker: {
         paddingVertical: 5,
-        paddingHorizontal: 5,
+        paddingHorizontal: Platform.OS === 'ios' ? 12 : 5,
         height: 50,
         width: '100%',
+        justifyContent: 'center',
+    },
+    inputContainer: {
+        height: '100%',
+        justifyContent: 'center',
+    },
+    input: {
+        fontSize: 17,
+        color: theme.colors.text,
     },
     label: {
         paddingVertical: 2,
@@ -41,31 +52,22 @@ const Picker = ({
     selectedValue = 'Country',
     label,
 }: PickerProps) => {
-    const renderData = data.map((item) => (
-        <NativePicker.Item
-            key={item.value}
-            label={item.label}
-            value={item.value}
-            color="#222"
-        />
-    ));
-
     return (
         <>
             {label && <Text style={s.label}>{label}</Text>}
             <View style={s.container}>
                 <NativePicker
                     onValueChange={onValueChange}
-                    selectedValue={selectedValue}
-                    style={s.picker}
-                >
-                    <NativePicker.Item
-                        label="Please select an option..."
-                        value=""
-                        color="#777"
-                    />
-                    {renderData}
-                </NativePicker>
+                    value={selectedValue}
+                    items={data}
+                    style={{
+                        viewContainer: s.picker,
+                        inputIOSContainer: s.inputContainer,
+                        inputAndroidContainer: s.inputContainer,
+                        inputIOS: s.input,
+                        inputAndroid: s.input,
+                    }}
+                />
             </View>
         </>
     );

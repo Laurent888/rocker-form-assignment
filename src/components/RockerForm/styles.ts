@@ -5,7 +5,12 @@ export const styles = StyleSheet.create({
         flex: 1,
         position: 'relative',
     },
-    container: {
+    formContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    contentContainer: {
         paddingHorizontal: 20,
         paddingVertical: 20,
         borderWidth: 1,

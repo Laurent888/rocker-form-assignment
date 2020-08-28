@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, ViewStyle, StyleProp } from 'react-native';
-import { Formik, FormikHelpers, Field } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
+// import Picker, { CountryProps } from '../common/Picker';
 import Picker, { CountryProps } from '../common/Picker';
 import ListMessages from '../common/ListMessages';
 import { ValuesProps } from './RockerForm';
@@ -45,10 +46,7 @@ const CustomForm = ({
 
         const isValidSSN = validateSSN(values.ssn);
         if (!isValidSSN) {
-            actions.setFieldError(
-                'ssn',
-                "This SSN doesn't seem valid, please try again",
-            );
+            actions.setFieldError('ssn', 'Invalid SSN');
         }
 
         // Validate Phone Number
@@ -69,7 +67,7 @@ const CustomForm = ({
             console.log('FORM SUCCESSFULLY SUBMITTED !!');
         }
 
-        return actions.setSubmitting(false);
+        actions.setSubmitting(false);
     };
 
     return (
@@ -98,13 +96,9 @@ const CustomForm = ({
                 return (
                     <KeyboardAwareScrollView
                         style={{ width: '100%' }}
-                        contentContainerStyle={{
-                            flex: 1,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
+                        contentContainerStyle={styles.formContainer}
                     >
-                        <View style={[styles.container, containerStyle]}>
+                        <View style={[styles.contentContainer, containerStyle]}>
                             {/* Text Input for SSN, phone and Email */}
                             <TextInput
                                 label="Social security number"
@@ -118,6 +112,7 @@ const CustomForm = ({
                             <TextInput
                                 label="Phone number"
                                 value={values.phoneNumber}
+                                maxLength={13}
                                 onChangeText={handleChange('phoneNumber')}
                                 keyboardType="phone-pad"
                                 placeholder="eg 076528452"
@@ -139,12 +134,13 @@ const CustomForm = ({
                             <Picker
                                 data={pickerData}
                                 onValueChange={(value) =>
-                                    setFieldValue('country', value)
+                                    setFieldValue('country', value ? value : '')
                                 }
                                 selectedValue={values.country}
                                 label="Your nationality"
                             />
 
+                            {/* Render Errors messages */}
                             {listErrors.length !== 0 &&
                                 Object.keys(touched).length >= 3 && (
                                     <ListMessages
